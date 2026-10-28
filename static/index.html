@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ürün & Pazar Araştırması · Flywork</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css?v=22">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect rx='8' width='32' height='32' fill='%231C8C46'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' font-family='Arial' fill='white'%3EF%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.6 12 4l8 6.6V20a1 1 0 0 1-1 1h-5.2v-5.6H10.2V21H5a1 1 0 0 1-1-1v-9.4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 14a5.5 5.5 0 1 1 8 0c-.7.7-1.2 1.5-1.4 2.4h-5.2c-.2-.9-.7-1.7-1.4-2.4Z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-flow" viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="15" y="15" width="6" height="5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 9v3a2 2 0 0 0 2 2h7M15 9h2a1 1 0 0 1 1 1v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-layout" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 9h16M10 9v11" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H10l2 2h5.5A2.5 2.5 0 0 1 20 10.5v6A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4 18 18M18 6l-1.6 1.6M7.6 16.4 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4.5L15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-game" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="9" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11v4M6 13h4M15.5 12h.01M17.5 14.5h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 12h16M12 4c2.4 2.2 3.6 4.8 3.6 8s-1.2 5.8-3.6 8c-2.4-2.2-3.6-4.8-3.6-8S9.6 6.2 12 4Z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.6 9 19 10.5 13.6 12 12 17.5 10.4 12 5 10.5 10.4 9 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M18 15.5 18.7 17.3 20.5 18 18.7 18.7 18 20.5 17.3 18.7 15.5 18 17.3 17.3 18 15.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M5 9.5 6.2 5.5h11.6L19 9.5M5 9.5h14V19a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 20v-5h6v5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="15" cy="16" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16l-6 7.2V19l-4-2v-3.8L4 6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M6 17.5 4 20V7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v7A2.5 2.5 0 0 1 17.5 17H8.2L6 17.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 18h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5v-16Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 19.2A2.5 2.5 0 0 1 7.5 17H19" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19s-7-4.2-7-8.2A3.6 3.6 0 0 1 12 8a3.6 3.6 0 0 1 7 2.8C19 14.8 12 19 12 19Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 12.2 11 14.5 15.5 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16.5 20 20.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6.5 16.5h11l-.8-1.6V10a4.7 4.7 0 0 0-9.4 0v4.9L6.5 16.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 16.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13.5a4 4 0 0 0 5.7.4l2.2-2.2a4 4 0 0 0-5.7-5.6L11 7.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14 10.5a4 4 0 0 0-5.7-.4L6.1 12.3a4 4 0 0 0 5.7 5.6L13 16.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 6h4v4M18 6l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 13.5V17a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">F</div>
+        <div class="brand-copy">
+          <strong>Flywork</strong>
+          <span>Product Studio</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <button type="button" class="nav-btn active" data-page="home"><svg class="ic"><use href="#i-home"></use></svg><span>Ana Sayfa</span></button>
+        <button type="button" class="nav-btn" data-page="research"><svg class="ic"><use href="#i-bulb"></use></svg><span>Fikir & Pazar Araştırması</span></button>
+        <button type="button" class="nav-btn" data-page="flow"><svg class="ic"><use href="#i-flow"></use></svg><span>FigJam Flow</span></button>
+        <button type="button" class="nav-btn" data-page="design"><svg class="ic"><use href="#i-layout"></use></svg><span>Tasarım İnceleme</span></button>
+        <button type="button" class="nav-btn" data-page="projects"><svg class="ic"><use href="#i-folder"></use></svg><span>Projeler</span></button>
+        <button type="button" class="nav-btn" data-page="costs"><svg class="ic"><use href="#i-card"></use></svg><span>Maliyet Analizi</span></button>
+      </nav>
+      <button type="button" class="nav-btn settings" data-page="settings"><svg class="ic"><use href="#i-gear"></use></svg><span>Ayarlar</span></button>
+    </aside>
+
+    <div class="content">
+      <section id="view-home" class="view pad active"></section>
+
+      <section id="view-research" class="view">
+        <header class="page-head">
+          <div>
+            <h1>Ürün & Pazar Araştırması <svg class="spark"><use href="#i-spark"></use></svg></h1>
+            <p>App Store, web verileri ve yapay zeka ile ürün fırsatlarını keşfet, analiz et ve ürün fikirleri oluştur.</p>
+          </div>
+          <button type="button" class="history-btn" id="history-btn">
+            <svg class="ic"><use href="#i-clock"></use></svg>
+            Araştırma geçmişi
+          </button>
+        </header>
+
+        <div class="controls">
+          <div class="field popover-host">
+            <button type="button" class="field-btn" id="type-btn" aria-haspopup="listbox">
+              <span class="field-ic" id="type-icon"><svg class="ic"><use href="#i-game"></use></svg></span>
+              <span class="field-copy">
+                <span class="field-label">Ürün türü</span>
+                <span class="field-value" id="type-value">Oyun</span>
+              </span>
+              <svg class="ic chevron"><use href="#i-chevron"></use></svg>
+            </button>
+            <div class="menu" id="type-menu" hidden></div>
+          </div>
+          <div class="field popover-host">
+            <button type="button" class="field-btn" id="scope-btn" aria-haspopup="listbox">
+              <span class="field-ic" id="scope-icon"><svg class="ic"><use href="#i-globe"></use></svg></span>
+              <span class="field-copy">
+                <span class="field-label">Araştırma kapsamı</span>
+                <span class="field-value" id="scope-value">Otonom (pazar araştırması)</span>
+              </span>
+              <svg class="ic chevron"><use href="#i-chevron"></use></svg>
+            </button>
+            <div class="menu" id="scope-menu" hidden></div>
+          </div>
+          <button type="button" class="start-btn" id="start-btn">Keşfi başlat <span aria-hidden="true">→</span></button>
+        </div>
+
+        <div class="criteria" id="criteria-wrap" hidden>
+          <label for="criteria">Aklındaki fikir</label>
+          <textarea id="criteria" maxlength="1200" placeholder="Örn. Çevrimdışı oynanan, reklamsız, 10 dakikalık rahatlatıcı bir çiftlik oyunu. Hasat kısa sürsün, ilerleme kaybolmasın."></textarea>
+        </div>
+
+        <div class="progress" id="progress" hidden>
+          <div class="steps" id="steps">
+            <span data-step="plan">Plan</span>
+            <span data-step="search">Kaynaklar</span>
+            <span data-step="score">Skor</span>
+            <span data-step="save">Panel</span>
+          </div>
+          <p id="progress-message">Araştırma planı hazırlanıyor</p>
+          <span id="progress-time">0 sn</span>
+        </div>
+
+        <div class="workspace" id="workspace">
+          <section class="panel list-panel">
+            <div class="list-head">
+              <div>
+                <h2>Keşfedilen Fikirler <span class="count" id="idea-count">0 fikir</span> <span class="status-pill" id="run-status">Örnek veri</span></h2>
+                <p class="list-caption" id="list-caption">Pazar araştırmasına göre öne çıkan ürün fırsatları.</p>
+              </div>
+              <div class="list-tools">
+                <div class="popover-host">
+                  <button type="button" class="ghost" id="sort-btn">Fırsat puanı (yüksekten) <svg class="ic"><use href="#i-chevron"></use></svg></button>
+                  <div class="menu" id="sort-menu" hidden></div>
+                </div>
+                <div class="popover-host">
+                  <button type="button" class="icon-btn" id="filter-btn" aria-label="Filtrele"><svg class="ic"><use href="#i-filter"></use></svg></button>
+                  <div class="menu" id="filter-menu" hidden></div>
+                </div>
+              </div>
+            </div>
+            <div id="warning" class="banner" hidden></div>
+            <div id="idea-list"></div>
+          </section>
+          <section class="panel detail-panel" id="detail"></section>
+        </div>
+      </section>
+
+      <section id="view-flow" class="view pad"></section>
+      <section id="view-design" class="view pad"></section>
+      <section id="view-projects" class="view pad"></section>
+      <section id="view-costs" class="view pad"></section>
+      <section id="view-settings" class="view pad"></section>
+    </div>
+  </div>
+
+  <div id="history-drawer" class="backdrop" hidden>
+    <div class="drawer" role="dialog" aria-label="Araştırma geçmişi">
+      <header class="drawer-head">
+        <div>
+          <h2>Araştırma geçmişi</h2>
+          <p>Son canlı keşifler bu cihazda durur.</p>
+        </div>
+        <button type="button" class="icon-btn" id="close-history" aria-label="Kapat">×</button>
+      </header>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <div id="fullpage" class="fullpage" hidden></div>
+
+  <script src="/static/app.js?v=48"></script>
+</body>
+</html>

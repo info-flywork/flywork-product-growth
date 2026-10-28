@@ -1,0 +1,13 @@
+{
+  "name": "Flywork Akış",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figjam"],
+  "enablePrivatePluginApi": true,
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "devAllowedDomains": ["http://localhost:8787"],
+    "reasoning": "Yerel Flywork paneli, seçilen fikrin akış metnini bu eklentiye verir."
+  }
+}
