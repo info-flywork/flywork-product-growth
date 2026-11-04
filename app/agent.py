@@ -7,7 +7,16 @@ from datetime import date
 
 import httpx
 
-from app.config import DATA, FIGMA_ACCESS_TOKEN, OPENAI_API_KEY, OPENAI_MODEL, TAVILY_API_KEY, usable
+from app.config import (
+    DATA,
+    FIGMA_ACCESS_TOKEN,
+    FIRECRAWL_API_KEY,
+    OPENAI_API_KEY,
+    OPENAI_MODEL,
+    TAVILY_API_KEY,
+    usable,
+)
+from app.figjam_claude import draw_status as claude_draw_status
 from app.costs import record_usage, usage_scope
 
 log = logging.getLogger("flywork")
@@ -314,7 +323,9 @@ def _product_notes(idea: dict) -> str:
         f"PUBG Mobile Call of Duty Mobile {title} battle royale comparison",
         f"{title} {subtitle} ban pay to win desync player complaints",
     ]
-    notes, sources = tavily_search(queries)
+    notes, sources = firecrawl_search(queries)
+    if len(notes) <= 400:
+        notes, sources = tavily_search(queries)
     useful = len(notes) > 400 and any(word in notes.casefold() for word in ("complaint", "şikayet", "hack", "lag", "cheat", "review"))
     if not useful:
         text, _web_sources, _provider = openai_web_search(queries)
@@ -566,13 +577,24 @@ def _write_problems(idea: dict) -> dict:
 
 
 def status() -> dict:
-    provider = "tavily" if usable(TAVILY_API_KEY) else "openai"
+    if usable(FIRECRAWL_API_KEY):
+        provider = "firecrawl"
+    elif usable(TAVILY_API_KEY):
+        provider = "tavily"
+    else:
+        provider = "openai"
+    claude = claude_draw_status()
     return {
         "model": OPENAI_MODEL,
         "openai": usable(OPENAI_API_KEY),
         "tavily": usable(TAVILY_API_KEY),
+        "firecrawl": usable(FIRECRAWL_API_KEY),
         "figma": usable(FIGMA_ACCESS_TOKEN),
         "provider": provider,
+        "claude_team": claude["claude_team"],
+        "claude_api": claude["claude_api"],
+        "figma_mcp": claude["figma_mcp"],
+        "claude_model": claude["claude_model"],
     }
 
 
@@ -706,6 +728,11 @@ def build_queries(product_type: str, scope: str, criteria: str) -> list[str]:
 
 
 def gather(queries: list[str]) -> tuple[str, list[dict], str, str]:
+    notes, sources = firecrawl_search(queries)
+    if len(notes) > 200:
+        log.info("Firecrawl kaynakları kullanıldı (%s)", len(sources))
+        return notes[:18000], sources, "live", "firecrawl"
+
     notes, sources = tavily_search(queries)
     if len(notes) > 200:
         log.info("Tavily kaynakları kullanıldı (%s)", len(sources))
@@ -718,6 +745,53 @@ def gather(queries: list[str]) -> tuple[str, list[dict], str, str]:
         return text[:18000], merged, "live", provider
     log.info("Canlı arama sonucu yok, model moduna düşüldü")
     return "", [], "model", "model"
+
+
+def firecrawl_search(queries: list[str]) -> tuple[str, list[dict]]:
+    if not usable(FIRECRAWL_API_KEY):
+        return "", []
+    notes: list[str] = []
+    sources: list[dict] = []
+    try:
+        with httpx.Client(timeout=httpx.Timeout(60.0, connect=10.0)) as client:
+            for query in queries:
+                response = client.post(
+                    "https://api.firecrawl.dev/v2/search",
+                    headers={
+                        "Authorization": f"Bearer {FIRECRAWL_API_KEY}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "query": query,
+                        "limit": 4,
+                        "scrapeOptions": {"formats": ["markdown"]},
+                    },
+                )
+                if response.status_code >= 400:
+                    log.info("Firecrawl hatası %s", response.status_code)
+                    continue
+                payload = response.json()
+                data = payload.get("data") if isinstance(payload, dict) else {}
+                web = []
+                if isinstance(data, dict):
+                    web = data.get("web") or []
+                elif isinstance(data, list):
+                    web = data
+                for item in web:
+                    if not isinstance(item, dict):
+                        continue
+                    url = str(item.get("url") or "")
+                    title = str(item.get("title") or url)
+                    description = str(item.get("description") or "")[:500]
+                    markdown = str(item.get("markdown") or item.get("content") or "")[:2500]
+                    sources.append({"title": title, "url": url})
+                    chunk = "\n".join(part for part in [title, description, markdown, url] if part)
+                    if chunk.strip():
+                        notes.append(chunk)
+    except httpx.HTTPError as exc:
+        log.info("Firecrawl isteği başarısız: %s", exc.__class__.__name__)
+        return "", []
+    return "\n\n".join(notes), dedupe(sources)
 
 
 def tavily_search(queries: list[str]) -> tuple[str, list[dict]]:

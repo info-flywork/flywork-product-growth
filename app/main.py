@@ -19,6 +19,7 @@ from app.agent import run_research, status, write_brief, write_problems
 from app.costs import summary as cost_summary
 from app.config import DATA, STATIC
 from app.design_review import review_design
+from app.figjam_claude import start_draw as start_claude_figjam
 from app.store import load_history, save_run
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
@@ -155,6 +156,7 @@ def figjam(req: FigjamRequest):
     with _figjam_lock:
         _figjam_jobs[job_id] = job
         (DATA / "figjam-request.json").write_text(json.dumps(_figjam_public(job), ensure_ascii=False), encoding="utf-8")
+    start_claude_figjam(job, _figjam_finish)
     return {"id": job_id, "status": "waiting"}
 
 
@@ -226,6 +228,24 @@ def figjam_done(job_id: str, req: FigjamDone):
             job["status"] = "error"
             job["error"] = "FigJam düğüm döndürmedi."
         return {"id": job["id"], "status": job["status"]}
+
+
+def _figjam_finish(job_id: str, node_ids: list[str], error: str) -> None:
+    with _figjam_lock:
+        job = _figjam_jobs.get(job_id)
+        if not job:
+            return
+        if job["status"] in {"done", "error"}:
+            return
+        if error.strip():
+            job["status"] = "error"
+            job["error"] = error.strip()[:300]
+            job["node_ids"] = []
+            return
+        if node_ids:
+            job["status"] = "done"
+            job["node_ids"] = [str(item)[:40] for item in node_ids[:40]]
+            job["error"] = ""
 
 
 def _figjam_file_key(url: str) -> str:

@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <body style="margin:0;font:13px/1.4 Inter,sans-serif;color:#1d2430;padding:12px">
+    <strong>Flywork Akış</strong>
+    <p id="status" style="margin:8px 0 0">Pano dinleniyor. Paneldeki yeşil düğme kartları buraya yazar.</p>
+    <script>
+      onmessage = (event) => {
+        const message = event.data.pluginMessage;
+        if (message && message.text) document.getElementById("status").textContent = message.text;
+      };
+    </script>
+  </body>
+</html>

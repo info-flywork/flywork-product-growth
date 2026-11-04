@@ -51,13 +51,7 @@ const FLOW_FILTERS = [
   { id: "without", label: "Akışı olmayanlar" },
 ];
 
-const FLOW_IDEAS = [
-  { id: "flow-1", title: "Farm Simulation Game", subtitle: "Rahatlatıcı çiftlik simülasyonu", scene: "farm", type: "Oyun", date: "28 Eki 2026", time: "10:48", flow: true, score: 82 },
-  { id: "flow-2", title: "Block Puzzle Game", subtitle: "Yenilikçi blok bulmaca", scene: "puzzle", type: "Oyun", date: "27 Eki 2026", time: "16:21", flow: false, score: 76 },
-  { id: "flow-3", title: "Hidden Object Game", subtitle: "Saklı nesne bulma oyunu", scene: "search", type: "Oyun", date: "27 Eki 2026", time: "11:03", flow: true, score: 71 },
-  { id: "flow-4", title: "Solitaire Game", subtitle: "Çevrimiçi günlük meydan okuma", scene: "cards", type: "Oyun", date: "26 Eki 2026", time: "14:37", flow: false },
-  { id: "flow-5", title: "Racing Game", subtitle: "Arcade yarış oyunu", scene: "racing", type: "Oyun", date: "25 Eki 2026", time: "09:12", flow: false, score: 51 },
-];
+const FLOW_IDEAS = [];
 
 const state = {
   page: "home",
@@ -897,6 +891,7 @@ function sourcesBlock() {
 function providerLabel() {
   const provider = (state.run && state.run.provider) || "";
   if (!state.run || state.run.search_mode === "model") return "Model bilgisi";
+  if (provider.startsWith("firecrawl")) return "Firecrawl";
   if (provider.startsWith("tavily")) return "Tavily";
   return "OpenAI web araması";
 }
@@ -1169,16 +1164,41 @@ function renderAux() {
   renderSettings();
 }
 
+function homeIdeaRows() {
+  return (state.sample ? [] : state.ideas).slice(0, 5).map((item) => ({
+    title: item.title,
+    blurb: item.subtitle || "",
+    kind: item.category || state.productType || "Oyun",
+    scene: item.scene || "app",
+    score: item.score,
+    date: formatWhen(state.run && state.run.created_at).split(",")[0] || "",
+  }));
+}
+
 function renderHome() {
   const root = document.getElementById("view-home");
   const activeId = document.activeElement && document.activeElement.id;
   const caret = activeId === "home-search" ? document.activeElement.selectionStart : null;
   const query = state.home.query.trim().toLocaleLowerCase("tr");
   const match = (text) => !query || text.toLocaleLowerCase("tr").includes(query);
-  const ideas = HOME_IDEAS.filter((item) => match(`${item.title} ${item.blurb} ${item.kind}`));
-  const progress = HOME_PROGRESS.filter((item) => match(`${item.title} ${item.badge}`));
+  const liveIdeas = homeIdeaRows().filter((item) => match(`${item.title} ${item.blurb} ${item.kind}`));
+  const ideas = liveIdeas.length ? liveIdeas : HOME_IDEAS.filter((item) => match(`${item.title} ${item.blurb} ${item.kind}`));
+  const projects = projectItems();
+  const progress = (projects.length
+    ? projects.slice(0, 5).map((item) => ({
+      title: item.title,
+      scene: item.scene || "app",
+      step: item.progress || 1,
+      badge: item.status === "beklemede" ? "Beklemede" : item.status === "tasarimda" ? "Tasarımda" : item.status === "arastirmada" ? "Araştırmada" : "Aktif",
+      tone: item.status === "beklemede" ? "wait" : item.status === "tasarimda" ? "design" : item.status === "arastirmada" ? "research" : "live",
+    }))
+    : HOME_PROGRESS
+  ).filter((item) => match(`${item.title} ${item.badge}`));
   const activity = HOME_ACTIVITY.filter((item) => match(item.text));
   const upcoming = HOME_UPCOMING.filter((item) => match(`${item.title} ${item.note}`));
+  const ideaCount = state.sample ? 0 : state.ideas.length;
+  const counts = projectCounts();
+  const resume = !state.sample && state.ideas[0] ? state.ideas[0] : null;
   root.innerHTML = `
     <div class="studio-top">
       <label class="studio-search">
@@ -1211,27 +1231,31 @@ function renderHome() {
             <button type="button" data-home-scope="idea"><strong>Fikir araştırması</strong><small>Yazdığın fikre bakar</small></button>
           </div>
         </div>
-        <button type="button" class="resume-card" data-page="research">
+        ${resume ? `<button type="button" class="resume-card" data-page="research">
           <span>Son kaldığın yer</span>
-          <strong>${projectThumb("farm")} <span>Farm Simulation Game<small>Araştırma analizi</small></span></strong>
-          <b>3/5</b>
-        </button>
+          <strong>${projectThumb(resume.scene || "app")} <span>${esc(resume.title)}<small>Araştırma analizi</small></span></strong>
+          <b>${n(resume.score || 0)}</b>
+        </button>` : `<button type="button" class="resume-card" data-page="research">
+          <span>Son kaldığın yer</span>
+          <strong><span>Henüz araştırma yok<small>Yeni araştırma başlat</small></span></strong>
+          <b>–</b>
+        </button>`}
       </div>
     </section>
     <div class="dash-metrics">
-      ${metric("idea", "Toplam fikir", "24", "+3")}
-      ${metric("box", "Aktif proje", "8", "+2")}
-      ${metric("check", "Tamamlanan", "5", "+1")}
-      ${metric("clock", "Beklemede", "3", "")}
+      ${metric("idea", "Toplam fikir", String(ideaCount), "")}
+      ${metric("box", "Aktif proje", String(counts.aktif), "")}
+      ${metric("check", "Tamamlanan", String(counts.tamamlandi), "")}
+      ${metric("clock", "Beklemede", String(counts.beklemede), "")}
     </div>
     <div class="dash-mid">
       <section class="dash-card">
         <header class="dash-card-head"><h2>Son fikirler</h2><button type="button" class="text-btn" data-page="research">Tümünü gör →</button></header>
-        <div class="dash-list">${ideas.map((item) => ideaRow(item)).join("") || `<p class="dash-empty">Eşleşen fikir yok.</p>`}</div>
+        <div class="dash-list">${ideas.map((item) => ideaRow(item)).join("") || `<p class="dash-empty">Henüz fikir yok. Yeni araştırma başlat.</p>`}</div>
       </section>
       <section class="dash-card">
         <header class="dash-card-head"><h2>Proje ilerlemesi</h2><button type="button" class="text-btn" data-page="projects">Tümünü gör →</button></header>
-        <div class="dash-list">${progress.map((item) => progressRow(item)).join("") || `<p class="dash-empty">Eşleşen proje yok.</p>`}</div>
+        <div class="dash-list">${progress.map((item) => progressRow(item)).join("") || `<p class="dash-empty">Henüz proje yok.</p>`}</div>
       </section>
       <section class="dash-card">
         <header class="dash-card-head"><h2>Hızlı erişim</h2></header>
@@ -1323,36 +1347,10 @@ function trendSvg(range) {
   </div>`;
 }
 
-const HOME_IDEAS = [
-  { title: "Farm Simulation Game", blurb: "Rahatlatıcı çiftlik simülasyonu", kind: "Oyun", scene: "farm", score: 82, date: "28 Eki 2026" },
-  { title: "Block Puzzle Game", blurb: "Yenilikçi blok bulmaca", kind: "Oyun", scene: "puzzle", score: 76, date: "27 Eki 2026" },
-  { title: "Hidden Object Game", blurb: "Saklı nesne bulma oyunu", kind: "Oyun", scene: "search", score: 71, date: "27 Eki 2026" },
-  { title: "Language Learning App", blurb: "AI destekli dil öğrenme", kind: "Eğitim", scene: "learn", score: 68, date: "26 Eki 2026" },
-  { title: "Racing Game", blurb: "Arcade yarış oyunu", kind: "Oyun", scene: "racing", score: 65, date: "25 Eki 2026" },
-];
-
-const HOME_PROGRESS = [
-  { title: "Farm Simulation", scene: "farm", step: 3, badge: "Aktif", tone: "live" },
-  { title: "Block Puzzle", scene: "puzzle", step: 2, badge: "Aktif", tone: "live" },
-  { title: "Femia", scene: "health", step: 3, badge: "Tasarımda", tone: "design" },
-  { title: "GetChat", scene: "chat", step: 1, badge: "Beklemede", tone: "wait" },
-  { title: "Veylo", scene: "mask", step: 1, badge: "Araştırmada", tone: "research" },
-];
-
-const HOME_ACTIVITY = [
-  { text: "Farm Simulation Game araştırması tamamlandı", when: "2 saat önce", tone: "green", mark: "✦" },
-  { text: "Block Puzzle Game projesi güncellendi", when: "5 saat önce", tone: "purple", mark: "▣" },
-  { text: "Femia tasarım incelemesi oluşturuldu", when: "1 gün önce", tone: "pink", mark: "♡" },
-  { text: "Yeni fikir eklendi: Racing Game", when: "1 gün önce", tone: "orange", mark: "➤" },
-  { text: "GetChat için FigJam akışı oluşturuldu", when: "2 gün önce", tone: "green", mark: "⌘" },
-];
-
-const HOME_UPCOMING = [
-  { day: "28", month: "Eki", title: "Farm Simulation", note: "Tasarım incelemesi", extra: "2" },
-  { day: "30", month: "Eki", title: "Femia", note: "Ürün planı hazırlığı", extra: "" },
-  { day: "1", month: "Kas", title: "GetChat", note: "FigJam akışı", extra: "1" },
-  { day: "3", month: "Kas", title: "Veylo", note: "Pazar araştırması güncellemesi", extra: "" },
-];
+const HOME_IDEAS = [];
+const HOME_PROGRESS = [];
+const HOME_ACTIVITY = [];
+const HOME_UPCOMING = [];
 
 function visibleFlowIdeas() {
   const query = state.flow.query.trim().toLocaleLowerCase("tr");
@@ -1446,7 +1444,7 @@ function createFlows(ids) {
 }
 
 function waitForFigjam(id) {
-  const plugin = "Bağlı Figma hesabı bu panoya çizemedi. Link, bu hesabın açabildiği bir FigJam dosyası olmalı.";
+  const plugin = "Claude panoya çizemedi. Terminalde `claude mcp login figma` yap. Kota bitince .env içine ANTHROPIC_API_KEY ve FIGMA_MCP_TOKEN yaz.";
   let tries = 0;
   return new Promise((resolve, reject) => {
     const tick = () => {
@@ -1524,7 +1522,7 @@ function renderFlow() {
     </div>
     <header class="flow-intro">
       <h1>FigJam Flow</h1>
-      <p>Akışı olmayan bir fikir seç. FigJam panosunun linkini yapıştır. Düğme, bağlı Figma hesabıyla kartları o panoya çizer.</p>
+      <p>Akışı olmayan bir fikir seç. FigJam panosunun linkini yapıştır. Düğme önce Claude Team kotasıyla çizer; kota bitince Claude API keye geçer.</p>
     </header>
     <section class="flow-board">
       <div class="flow-board-head">
@@ -1809,16 +1807,7 @@ const PROJECT_SORTS = [
   { id: "progress", label: "İlerleme" },
 ];
 
-const PROJECT_SEED = [
-  { id: "p1", title: "Farm Simulation Game", kind: "Oyun", platform: "Mobil", scene: "farm", blurb: "Rahatlatıcı çiftlik simülasyonu oyunu. Offline oynanabilir, günlük görevler.", status: "aktif", progress: 3, updated: "28 Eki 2026", at: "2026-10-28" },
-  { id: "p2", title: "Block Puzzle Game", kind: "Oyun", platform: "Mobil", scene: "puzzle", blurb: "Yenilikçi blok bulmaca oyunu. Farklı modlar ve günlük meydan okumalar.", status: "aktif", progress: 2, updated: "27 Eki 2026", at: "2026-10-27" },
-  { id: "p3", title: "Hidden Object Game", kind: "Oyun", platform: "Mobil", scene: "search", blurb: "Saklı nesne bulma oyunu. Farklı tema paketleri ve hikaye modu.", status: "beklemede", progress: 1, updated: "26 Eki 2026", at: "2026-10-26" },
-  { id: "p4", title: "Language Learning", kind: "Eğitim", platform: "Mobil", scene: "learn", blurb: "AI destekli dil öğrenme uygulaması. Konuşma pratiği ve kişiselleştirilmiş dersler.", status: "aktif", progress: 4, updated: "26 Eki 2026", at: "2026-10-26" },
-  { id: "p5", title: "Racing Game", kind: "Oyun", platform: "Mobil", scene: "racing", blurb: "Arcade yarış oyunu. Farklı araçlar ve parkurlar.", status: "tasarimda", progress: 2, updated: "25 Eki 2026", at: "2026-10-25" },
-  { id: "p6", title: "Femia", kind: "Sağlık", platform: "Mobil", scene: "health", blurb: "Adet takibi uygulaması. Kişisel sağlık ve yaşam döngüsü takibi.", status: "aktif", progress: 3, updated: "24 Eki 2026", at: "2026-10-24" },
-  { id: "p7", title: "GetChat", kind: "AI Araç", platform: "Mobil", scene: "chat", blurb: "AI chat bot uygulaması. Flywork'ün yapay zekası.", status: "beklemede", progress: 1, updated: "22 Eki 2026", at: "2026-10-22" },
-  { id: "p8", title: "Veylo", kind: "Sosyal", platform: "Mobil", scene: "mask", blurb: "Anonim arkadaşlık uygulaması. Güvenli ve eğlenceli eşleşme deneyimi.", status: "arastirmada", progress: 1, updated: "21 Eki 2026", at: "2026-10-21" },
-];
+const PROJECT_SEED = [];
 
 function projectItems() {
   if (!state.projects.items) state.projects.items = PROJECT_SEED.map((item) => Object.assign({}, item));
@@ -2027,11 +2016,14 @@ function renderSettings() {
     <div class="status-grid">
       <article class="status-card"><span>OpenAI</span><strong class="${cfg.openai ? "ok" : "warn-text"}">${cfg.openai ? "Anahtar var" : "Anahtar yok"}</strong></article>
       <article class="status-card"><span>Model</span><strong>${esc(cfg.model || "gpt-4o")}</strong></article>
-      <article class="status-card"><span>Web araması</span><strong class="${cfg.tavily ? "ok" : ""}">${cfg.tavily ? "Tavily" : "OpenAI web araması"}</strong></article>
+      <article class="status-card"><span>Web araması</span><strong class="${cfg.firecrawl || cfg.tavily ? "ok" : ""}">${cfg.firecrawl ? "Firecrawl" : cfg.tavily ? "Tavily" : "OpenAI web araması"}</strong></article>
+      <article class="status-card"><span>Claude Team</span><strong class="${cfg.claude_team ? "ok" : "warn-text"}">${cfg.claude_team ? "Girişli" : "Yok"}</strong></article>
+      <article class="status-card"><span>Claude API</span><strong class="${cfg.claude_api ? "ok" : ""}">${cfg.claude_api ? "Anahtar var" : "Yedek yok"}</strong></article>
+      <article class="status-card"><span>FigJam çizim</span><strong>${esc(cfg.claude_model || "claude-sonnet-4-5")}</strong></article>
     </div>
     <article class="soft-card help">
-      <p>${cfg.tavily ? "Tavily anahtarı yüklü. Kaynak taraması Tavily üzerinden gidiyor." : "Tavily anahtarı yok. İstersen <code>.env</code> içine <code>TAVILY_API_KEY</code> yaz; ajan aramayı oradan yapar. Yazmazsan OpenAI web araması kullanılır."}</p>
-      <p style="margin-top:8px">Bir keşif iki çağrı yapar: önce kaynak taraması, sonra fırsat ve rakip karşılaştırması. Bu, OpenAI kotandan düşer ve genelde bir dakikadan kısa sürer. Anahtar kısıtlıysa Model capabilities izninin açık olması gerekir.</p>
+      <p>${cfg.firecrawl ? "Firecrawl anahtarı yüklü. Kaynak taraması önce Firecrawl ile gidiyor." : cfg.tavily ? "Tavily anahtarı yüklü. Kaynak taraması Tavily üzerinden gidiyor." : "Firecrawl / Tavily anahtarı yok. İstersen <code>.env</code> içine <code>FIRECRAWL_API_KEY</code> yaz; yoksa OpenAI web araması kullanılır."}</p>
+      <p style="margin-top:8px">Araştırma ve tasarım OpenAI ile gider. FigJam akışı önce Claude Team kotasından çizilir; kota bitince <code>ANTHROPIC_API_KEY</code> kullanılır. Figma MCP için bir kez <code>claude mcp login figma</code> gerekir.</p>
     </article>`;
 }
 
@@ -2086,6 +2078,17 @@ function showPage(page) {
 }
 
 const FLOW_STORE = "flywork-flow-decisions";
+const FLOW_WIPE = "flywork-flow-wipe-1";
+
+function wipeFlowStoreOnce() {
+  try {
+    if (localStorage.getItem(FLOW_WIPE) === "1") return;
+    localStorage.removeItem(FLOW_STORE);
+    localStorage.setItem(FLOW_WIPE, "1");
+  } catch (err) {
+    /* tarayıcı kaydı kapalıysa devam */
+  }
+}
 
 function readFlowStore() {
   try {
@@ -2695,7 +2698,10 @@ function fail(message) {
 
 async function init() {
   bind();
-  useSample();
+  state.sample = false;
+  state.run = null;
+  state.ideas = [];
+  state.selectedId = null;
   try {
     const [config, latest, history] = await Promise.all([
       fetch("/api/config").then((res) => res.json()),
@@ -2708,6 +2714,7 @@ async function init() {
   } catch (err) {
     state.error = "Panel verisi okunamadı. Sayfayı yenile.";
   }
+  wipeFlowStoreOnce();
   restoreFlowDecisions();
   renderList();
   renderDetail();
